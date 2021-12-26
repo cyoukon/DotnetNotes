@@ -6,7 +6,7 @@ docker-compose.yml文件如下，这里装的是arm64版本的，要装其他版
 
 [Docker @ Elastic](https://www.docker.elastic.co/)
 
-```
+```bash
 version: '3.1'
 
 services:
@@ -33,7 +33,7 @@ services:
 
 安装好docker和docker-compose，切到该文件所在目录，执行下面命令，开始安装es和kibana
 
-```
+```bash
 docker-compose up -d
 ```
 
@@ -45,7 +45,7 @@ docker-compose up -d
 
 记录不存在就是创建, 否则是全量替换.
 
-```
+```json
 PUT /index/type/id  
 {
     "name": "张三",
@@ -58,7 +58,7 @@ PUT /index/type/id
 
 创建
 
-```
+```json
   //POST 命令新增数据时, 如果不传id, 则系统自动生成一个UUID.
   POST /index/type/
   {
@@ -73,7 +73,7 @@ PUT /index/type/id
 
 修改，这里也是全量替换
 
-```
+```json
   //没有带上的属性会被清除
   POST /index/type/id
   {
@@ -83,7 +83,7 @@ PUT /index/type/id
 
 ### 1.3 查询指定Id
 
-```
+```json
 GET /index/type/id
 ```
 
@@ -91,13 +91,13 @@ GET /index/type/id
 
 删除指定id数据，只是逻辑删除, 将其标记为delete, 当数据越来越多时, ES会自动物理删除.
 
-```
+```json
 DELETE /index/type/id
 ```
 
 或者删除整个索引
 
-```
+```json
 DELETE /index
 ```
 
@@ -105,7 +105,7 @@ DELETE /index
 
 部分更新如果只包含部分属性, 那么其他没有被包含的属性仍然存在, 但普通修改其他没有被包含的属性就直接清除了.
 
-```
+```json
 post /index/type/id/_update 
 {
    "doc": {
@@ -117,7 +117,7 @@ post /index/type/id/_update
 
 ### 1.6 批量查询
 
-```
+```json
 GET /_mget
 {
   "docs" : [
@@ -158,7 +158,7 @@ GET /test_index/roster/_mget
 
 每一个操作要两个json串，语法如下：
 
-```
+```json
 POST /index/type/_bulk
 {"action": {"metadata"}}
 {"data"}
@@ -172,7 +172,7 @@ action类型如下：
 
 实例如下：
 
-```
+```json
 POST /_bulk
 {"delete" : {"_index":"company", "_type":"employee","_id":"1"}}
 {"create" :{"_index":"company","_type":"employee","_id":"2"}}
@@ -187,13 +187,13 @@ POST /_bulk
 
 (1) 搜索所有index数据.
 
-```
+```json
 GET /_search
 ```
 
 (2) 搜索指定index, type下的数据(index和type可以有多个)
 
-```
+```json
 GET /index1/_search
 GET /index1,index2/_search
 GET /index1/type1/_search
@@ -203,7 +203,7 @@ GET /index1,index2/type1,type2/_search
 
 (3) 搜索所有index下的指定type的数据.
 
-```
+```json
 GET /_all/employee,product/_search
 ```
 
@@ -211,7 +211,7 @@ GET /_all/employee,product/_search
 
 (1) 语法
 
-```
+```json
 GET /index/type/_search?q=属性名:属性值
 GET /index/type/_search?q=+属性名:属性值
 GET /index/type/_search?q=-属性名:属性值
@@ -225,7 +225,7 @@ GET /index/type/_search?q=属性值
 
 (3) 实例
 
-```
+```json
 GET /website/article/_search?q=author_id:11403
 GET /website/article/_search?q=-author_id:11403
 GET /website/article/_search?q=11403
@@ -243,7 +243,7 @@ DSL, Domain Specified Language，特定领域的语言. 这个查询就类似于
 
 *首先，插入测试用的数据*
 
-```
+```json
 PUT /website/article/1
 {
   "post_date": "2017-01-01",
@@ -283,7 +283,7 @@ PUT /website/article/3
 
 mapping结构如下:
 
-```
+```json
 GET /website/_mapping/article
 
 {
@@ -333,7 +333,7 @@ GET /website/_mapping/article
 
 实例: 从website索引中查询所有文章
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -344,7 +344,7 @@ GET /website/article/_search
 
 C#对象模型类
 
-```
+```json
     [ElasticsearchType(RelationName = "website")]
     internal class WebsiteModel
     {
@@ -367,7 +367,7 @@ C#对象模型类
 
 C#代码
 
-```
+```C#
 result = await esClient.SearchAsync<WebsiteModel>(s => s
     .Index("website")
     .Query(q => q
@@ -378,7 +378,7 @@ result = await esClient.SearchAsync<WebsiteModel>(s => s
 
 a. 搜索标题中包含first或second的文章
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -423,7 +423,7 @@ GET /website/article/_search
 
 b. 搜索标题中包含first和second的文章
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -457,7 +457,7 @@ GET /website/article/_search
 
 c. 搜索标题中至少包含first, second, third, fourth中三个单词的文章.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -498,7 +498,7 @@ GET /website/article/_search
 
 d. 从website索引中查询, 标题必须包含elasticsearch，内容可以包含elasticsearch也可以不包含，作者id必须不为111.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -531,7 +531,7 @@ GET /website/article/_search
 
 e. 从website索引中查询, 标题包含first, 同时按作者id降序排序
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -551,7 +551,7 @@ GET /website/article/_search
 
 f. 从website索引中分页查询，总共3篇文章，假设每页就显示1篇文章，现在显示第2页
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -564,7 +564,7 @@ GET /website/article/_search
 
 g. 从website索引中查询所有文章, 只显示post_date, title两个属性.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -576,7 +576,7 @@ GET /website/article/_search
 
 h. 搜索标题中包含 article 的文章, 如果标题中包含first或second就优先搜索出来, 同时, 如果一个文章标题包含first article, 另一个文章标题包含second article, 包含first article的文章要优先搜索出来.
 
-```
+```json
 //通过加权重来处理, 默认权重为1
 GET /website/article/_search
 {
@@ -618,7 +618,7 @@ multi_match 用于查询词匹配多个属性. 这里涉及到几种匹配策略
 
 a. 使用best_fields策略, 从title和content中搜索"my third article".
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -633,7 +633,7 @@ GET /website/article/_search
 
 b. 从title和content中搜索"my third article", 且这三个单词要连在一起.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -653,7 +653,7 @@ GET /website/article/_search
 
 实例: 搜索title或content中包含first或article的文章
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -677,7 +677,7 @@ GET /website/article/_search
 
 使用dis_max:
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -707,7 +707,7 @@ tie_breaker是与dis_max配套使用的. dis_max只取分数最大的那个条�
 
 a. 将上面的实例优化下:
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -732,7 +732,7 @@ GET /website/article/_search
 
 b. 继续优化. 如果搜索词包含多个关键字, 我们要求至少匹配多个关键词, 且多个条件的权重不同.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -769,7 +769,7 @@ GET /website/article/_search
 
 全文搜索会将"查询词"拆解开来, 去倒排索引中一一匹配, 只要能匹配上任意一个拆解后的关键词, 就可以作为结果返回. 而短语搜索在全文搜索的基础上, 要求关键词必须相邻. (注意短语搜索的"查询词"也是会被分词的)
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -801,7 +801,7 @@ GET /website/article/_search
 
 a. 从content中搜索"first website", first和website必须在同一个doc中, 且间隔不能超过10.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -819,7 +819,7 @@ b. 全文搜索和短语搜索配合使用. 从content中搜索"first website", 
 
 > 召回率: 从n个doc中搜索, 有多少个doc返回. 精准度: 让两个关键词间隔越小的doc相关度分数越高.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -850,7 +850,7 @@ GET /website/article/_search
 
 短语搜索的性能要比全文搜索的性能低10倍以上, 所以一般我们要用短语搜索时都会配合全文搜索使用. 先通过全文搜索出匹配的doc, 然后对相关度分数最高的前n条doc进行rescore短语搜索. (这里只能用于分页搜索)
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -880,7 +880,7 @@ GET /website/article/_search
 
 > 这个功能不推荐使用, 因为性能太差, 我们一般通过ngram分词机制来实现搜索推荐.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -897,7 +897,7 @@ GET /website/article/_search
 
 (1) 语法一
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -915,7 +915,7 @@ fuzziness代表最多纠正多少个字母, 默认为2. 搜索文本不会被分
 
 (2) 语法二
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -940,7 +940,7 @@ term查询, 是一种结构化查询, "查询词"不会被分词, 结果要么�
 
 和短语搜索对比一下可以更好的理解:
 
-```
+```json
 1. phrase搜索
 GET /website/article/_search
 {
@@ -983,7 +983,7 @@ GET /website/article/_search
 
 为了提高效率, term搜索一般与filter和constant_score联用. constant_score 以固定的评分来执行查询(默认为1), 而filter不计算score相关度, 因此执行效率非常高.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1008,7 +1008,7 @@ query filter 用于过滤数据, 不参与score相关度计算, 效率很高. �
 
 a. 从website索引中查询, 作者id必须大于等于11402，同时发表时间必须是2017-01-02.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1038,7 +1038,7 @@ GET /website/article/_search
 
 b. 搜索发布日期为2017-01-01, 或者文章标题为"my first article"的帖子, 同时要求文章的发布日期绝对不为2017-01-02.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1071,7 +1071,7 @@ GET /website/article/_search
 
 c. 搜索文章标题为"my first article", 或者是文章标题为"my second article", 而且发布日期为"2017-01-01"的文章.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1110,7 +1110,7 @@ GET /website/article/_search
 
 d. 搜索文章标题为"my first article"或"my second article"的文章
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1130,7 +1130,7 @@ GET /website/article/_search
 
 e. 搜索tags中包含java的帖子.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1153,7 +1153,7 @@ f. 搜索tags中只包含java的帖子.
 
 如果想搜索tags中只包含java的帖子, 就需要新增一个字段tags_count, 表示tags中有几个tag, 否则就无法搜索.
 
-```
+```json
 GET /website/article/_search
 {
   "query": {
@@ -1205,7 +1205,7 @@ scroll_id只能使用一次, 使用过后会被自动删除.
 
 a. 首次查询
 
-```
+```json
 GET /website/article/_search?scroll=1s
 {
   "query": {
@@ -1226,7 +1226,7 @@ b. 后续查询
 
 scroll_id只能使用一次.
 
-```
+```json
 GET /_search/scroll?scroll=1s&scroll_id=DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAATqFmRBQ3FwUFVrUUw2VHgyU2I5UWRMRlEAAAAAAAAE6xZkQUNxcFBVa1FMNlR4MlNiOVFkTEZRAAAAAAAABOwWZEFDcXBQVWtRTDZUeDJTYjlRZExGUQAAAAAAAATtFmRBQ3FwUFVrUUw2VHgyU2I5UWRMRlEAAAAAAAAE7hZkQUNxcFBVa1FMNlR4MlNiOVFkTEZR
 {
 }
@@ -1241,7 +1241,7 @@ GET /_search/scroll
 
 c. 删除指定scroll_id
 
-```
+```json
 DELETE /_search/scroll
 {
   "scroll_id": "scroll_id=DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAiXFmRBQ3FwUFVrUUw2VHgyU2I5UWRMRlEAAAAAAAAImBZkQUNxcFBVa1FMNlR4MlNiOVFkTEZRAAAAAAAACJkWZEFDcXBQVWtRTDZUeDJTYjlRZExGUQAAAAAAAAiaFmRBQ3FwUFVrUUw2VHgyU2I5UWRMRlEAAAAAAAAImxZkQUNxcFBVa1FMNlR4MlNiOVFkTEZR=="
@@ -1250,7 +1250,7 @@ DELETE /_search/scroll
 
 d. 删除所有scroll_id
 
-```
+```json
 DELETE /_search/scroll/_all
 ```
 
@@ -1262,7 +1262,7 @@ DELETE /_search/scroll/_all
 
 **语法**
 
-```
+```json
 GET /index/type/_search
 {
   size: 0,
@@ -1286,7 +1286,7 @@ size=0的原因是不需要搜索结果, 如果需要搜索结果, 则去除size
 
 新增电视机销售记录, 用于接下来的实例分析.
 
-```
+```json
 POST /televisions/sales/_bulk
 { "index": {}}
 { "price" : 1000, "color" : "红色", "brand" : "长虹", "sold_date" : "2016-10-28" }
@@ -1308,7 +1308,7 @@ POST /televisions/sales/_bulk
 
 mapping结构如下:
 
-```
+```json
 GET /televisions/_mapping/sales
 {
   "televisions": {
@@ -1350,7 +1350,7 @@ GET /televisions/_mapping/sales
 
 a. 统计哪种颜色的电视销量最高
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1368,7 +1368,7 @@ GET /televisions/sales/_search
 
 b. 统计每种颜色电视的平均价格
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1393,7 +1393,7 @@ c. 统计每种颜色电视的平均价格, 以及统计每种颜色下每个品
 
 这里就涉及到嵌套分组了, 也叫做多层下钻分析.
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1428,7 +1428,7 @@ GET /televisions/sales/_search
 
 d. 统计每种颜色电视机的最大最小价格
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1456,7 +1456,7 @@ GET /televisions/sales/_search
 
 e. 统计每种颜色电视机的总销售额
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1481,7 +1481,7 @@ GET /televisions/sales/_search
 
 a. 按价格区间统计电视销量和销售额
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1505,7 +1505,7 @@ GET /televisions/sales/_search
 
 b. 统计 2016-01-01 ~ 2017-12-31 范围内每个月的电视机销量.
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1528,7 +1528,7 @@ GET /televisions/sales/_search
 
 c. 统计 2016-01-01 ~ 2017-12-31 范围内每个季度的销售额以及该季度下每个品牌的销售额
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1570,7 +1570,7 @@ GET /televisions/sales/_search
 
 d. 统计每种颜色电视的销售额, 按照销售额升序排序
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1596,7 +1596,7 @@ GET /televisions/sales/_search
 
 e. 统计每种颜色下的每个品牌电视机的总销售额, 并按这个销售额升序排序.
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1629,7 +1629,7 @@ GET /televisions/sales/_search
 
 f. 统计每个月的电视销量, 并按品牌去重.
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1657,7 +1657,7 @@ cardinality 去重采用的是近似估计的算法, 错误率在5%左右, 其�
 
 g. 统计50%, 90% 和 99%的电视的最大价格(一般用于统计api请求的最长延迟时间)
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1678,7 +1678,7 @@ GET /televisions/sales/_search
 
 h. 统计每个品牌的电视机的价格, 在1000以内, 2000以内, 3000以内, 4000以内的所占比例.
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0,
@@ -1709,7 +1709,7 @@ GET /televisions/sales/_search
 
 a. 统计指定品牌下(小米)每个颜色的销量
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1732,7 +1732,7 @@ GET /televisions/sales/_search
 
 或者
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1759,7 +1759,7 @@ GET /televisions/sales/_search
 
 b. 统计单个品牌(长虹)与所有品牌销售额对比
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
@@ -1796,7 +1796,7 @@ global 表示将所有数据纳入聚合的scope，忽视前面的query过滤.
 
 c. 统计指定品牌(长虹)最近一个月和最近半年的平均价格
 
-```
+```json
 GET /televisions/sales/_search
 {
   "size": 0, 
