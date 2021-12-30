@@ -687,9 +687,9 @@ spec:
 
 ```shell
 kubectl create deployment nginx --image=nginx
-
+# 暴露80端口
 kubectl expose deployment nginx --port=80 --type=NodePort
-
+# 查看pod和svc资源
 kubectl get pod,svc
 ```
 
