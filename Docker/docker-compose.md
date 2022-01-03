@@ -1,4 +1,37 @@
-# docker-compose中的重试策略
+## docker-compose文件介绍
+
+```yaml
+# docker-compose的版本
+version: '3.1'
+services:
+  #服务名称
+  mssql:
+    #容器名称
+    container_name: mssql
+    #镜像名称
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    #总是重启后启动
+    restart: "no"
+    #端口映射
+    ports:
+      - 1433:1433
+    #挂载
+    volumes:
+      - ./data:/var/lib/rabbitmq
+    #环境变量
+    environment:
+      - ACCEPT_EULA=Y
+      #SA用户密码
+      - SA_PASSWORD=MSSQL!123
+```
+
+
+
+
+
+
+
+## docker-compose中定义重试策略
 
 | <font color='red'>restart policies</font> | <font color='red'>comment</font>                             |
 | ----------------------------------------- | ------------------------------------------------------------ |
