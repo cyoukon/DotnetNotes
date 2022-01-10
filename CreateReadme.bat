@@ -1,1 +1,1 @@
-dotnet ./Others/CreateReadme/ReadmeCreator/Run/ReadmeCreator.dll
+dotnet run --project ./Others/CreateReadme/ReadmeCreator/ReadmeCreator.csproj

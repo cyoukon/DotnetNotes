@@ -31,3 +31,20 @@
 ## 处理并发冲突
 
 https://docs.microsoft.com/zh-cn/aspnet/core/data/ef-mvc/concurrency?view=aspnetcore-5.0
+
+## 判断数据是否存在
+
+> 限制只查一条数据，同时不选择列，提升效率
+
+MySQL
+
+```mysql
+SELECT 1 FROM test_table WHERE id = 1 LIMIT 1
+```
+
+MSSQL
+
+```mssql
+SELECT TOP 1 1 FROM test_table WHERE id = 1
+```
+
