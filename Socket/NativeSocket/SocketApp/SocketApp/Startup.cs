@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using SocketApp.SocketHandlers;
 using SocketLib;
 
@@ -41,7 +40,9 @@ namespace SocketApp
 
             app.UseWebSockets();
             app.MapWebSockets<ChatSocketHandler>("/chat");
-            app.MapWebSockets<TestSocketHandler>("/test");
+            app.MapWebSockets<TestSocketHandler>("/ws", token => Task.FromResult(token == "this-is-token"));
+
+            app.UseStaticFiles();
         }
     }
 }

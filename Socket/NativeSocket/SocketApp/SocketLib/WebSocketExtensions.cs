@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +11,11 @@ namespace SocketLib
     {
         public static IServiceCollection AddWebSocket(this IServiceCollection services)
         {
-            services.AddSingleton<ISocketFactory, SocketFactory>();
+            // ISocketFactory 只在 SocketHandler 的基类中注入，
+            // 每个 SocketHandler 管理一组类型相同的 Socket，
+            // 这里SocketHandler采用单例模式，不同的SocketHandler注入不同的SocketFactory实例，
+            // 用于隔离Socket组
+            services.AddTransient<ISocketFactory, SocketFactory>();
 
             var exportedTypes = Assembly.GetEntryAssembly()?.ExportedTypes;
             if (exportedTypes == null) return services;
@@ -30,10 +31,13 @@ namespace SocketLib
             return services;
         }
 
-        public static IApplicationBuilder MapWebSockets<T>(this IApplicationBuilder app, PathString path) where T : SocketHandler, new()
+        public static IApplicationBuilder MapWebSockets<T>(
+            this IApplicationBuilder app, PathString path, Func<string, Task<bool>> authorizationAsync = null) where T : SocketHandler
         {
             var socket = app.ApplicationServices.GetRequiredService<T>();
-            return app.Map(path, x => x.UseMiddleware<SocketsMiddleware>(socket));
+            return authorizationAsync is null
+                ? app.Map(path, x => x.UseMiddleware<SocketsMiddleware>(socket))
+                : app.Map(path, x => x.UseMiddleware<SocketsWithAuthMiddleware>(socket, authorizationAsync));
         }
     }
 }

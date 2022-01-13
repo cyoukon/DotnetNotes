@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SocketLib
 {
-    internal interface ISocketHandler
+    public interface ISocketHandler
     {
         Task OnConnected(string key, WebSocket socket);
         Task OnDisconnected(string key);
@@ -17,9 +17,9 @@ namespace SocketLib
         Task SendAsync(string key, string message, WebSocketMessageType messageType = WebSocketMessageType.Text, int retryCount = 3, int retryMillisecondsDelay = 1000, CancellationToken cancellationToken = default);
     }
 
-    internal abstract class SocketHandler : ISocketHandler
+    public abstract class SocketHandler : ISocketHandler
     {
-        private readonly ISocketFactory socketFactory;
+        protected readonly ISocketFactory socketFactory;
 
         public SocketHandler(ISocketFactory socketFactory)
         {
@@ -43,7 +43,7 @@ namespace SocketLib
         /// <returns></returns>
         public virtual async Task OnDisconnected(string key)
         {
-            await socketFactory.RemoveAsync(key);
+            await socketFactory.RemoveAsync(key).ConfigureAwait(false);
         }
 
 
@@ -74,6 +74,13 @@ namespace SocketLib
             throw new WebSocketException($"{key} 对应socket状态异常");
         }
 
+        /// <summary>
+        /// 服务端接收到消息要执行的处理
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="result"></param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public abstract Task ReceiveAsync(string key, WebSocketReceiveResult result, byte[] buffer);
     }
 }
