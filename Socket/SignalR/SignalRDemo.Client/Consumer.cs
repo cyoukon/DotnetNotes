@@ -26,6 +26,7 @@ namespace SignalRDemo.Client
                 .Build();
 
             _hubConnection.On<string, string>("ReceiveMessage", OnNotificationReceivedAsync);
+            _hubConnection.On<string>("JoinOrLeft", msg => Console.WriteLine(msg));
         }
 
         public Task StartNotificationConnectionAsync()

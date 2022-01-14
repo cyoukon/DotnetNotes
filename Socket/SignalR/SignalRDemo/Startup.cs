@@ -27,7 +27,10 @@ namespace SignalRDemo
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddControllers();
-            services.AddSignalR();
+
+            // 这里可以添加筛选器
+            // https://docs.microsoft.com/zh-cn/aspnet/core/signalr/hub-filters?view=aspnetcore-6.0
+            services.AddSignalR(); 
 
             services.AddCors(options =>
                options.AddPolicy("aollwAllOrigins", builder =>
