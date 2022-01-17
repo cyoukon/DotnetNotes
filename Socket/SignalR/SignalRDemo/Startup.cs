@@ -30,7 +30,12 @@ namespace SignalRDemo
 
             // 这里可以添加筛选器
             // https://docs.microsoft.com/zh-cn/aspnet/core/signalr/hub-filters?view=aspnetcore-6.0
-            services.AddSignalR(); 
+            services.AddSignalR()
+            // https://docs.microsoft.com/en-us/aspnet/core/signalr/redis-backplane?view=aspnetcore-6.0
+            //.AddStackExchangeRedis(connectionString, options => {
+            //    options.Configuration.ChannelPrefix = "MyApp";
+            //})
+            ;
 
             services.AddCors(options =>
                options.AddPolicy("aollwAllOrigins", builder =>
