@@ -47,13 +47,13 @@ namespace ConsoleApp1
                 for (int i = 0; i < directories.Length; i++)
                 {
                     string dire = directories[i];
-                    var titleData = $"{titleMarks[..(i + 1)]} {dire}";
+                    var titleData = $"{titleMarks[..(i + 1)]} {dire.Replace(" ", "%20")}";
                     if (!mdDatas.Contains(titleData))
                     {
                         mdDatas.Add(titleData);
                     }
                 }
-                mdDatas.Add($"[{Path.GetFileName(mdFile)}]({mdFile})");
+                mdDatas.Add($"[{Path.GetFileName(mdFile)}]({mdFile.Replace(" ", "%20")})");
             }
 
             return mdDatas;
