@@ -514,3 +514,424 @@ public class Solution
 
 - 时间复杂度：O(n)，其中 n 为序列长度。每个位置至多被遍历两次。
 - 空间复杂度：O(1)。只需要常数的空间存放若干变量。
+
+### [167. 两数之和 II - 输入有序数组](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/)
+
+#### 题目
+
+给你一个 **下标从 1 开始** 的整数数组 numbers ，该数组已按 非递减顺序排列  ，请你从数组中找出满足相加之和等于目标数 target 的两个数。如果设这两个数分别是 numbers[index1] 和 numbers[index2] ，则 1 <= index1 < index2 <= numbers.length 。
+
+以长度为 2 的整数数组 [index1, index2] 的形式返回这两个整数的下标 index1 和 index2。
+
+你可以假设每个输入 **只对应唯一的答案** ，而且你 **不可以** 重复使用相同的元素。
+
+你所设计的解决方案必须只使用常量级的额外空间。
+
+**示例 1：**
+
+```
+输入：numbers = [2,7,11,15], target = 9
+输出：[1,2]
+解释：2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2 。返回 [1, 2] 。
+```
+
+**示例 2：**
+
+```
+输入：numbers = [2,3,4], target = 6
+输出：[1,3]
+解释：2 与 4 之和等于目标数 6 。因此 index1 = 1, index2 = 3 。返回 [1, 3] 。
+```
+
+**示例 3：**
+
+```
+输入：numbers = [-1,0], target = -1
+输出：[1,2]
+解释：-1 与 0 之和等于目标数 -1 。因此 index1 = 1, index2 = 2 。返回 [1, 2] 。
+```
+
+
+提示：
+
+- 2 <= numbers.length <= 3 * 10^4^
+
+- -1000 <= numbers[i] <= 1000
+
+- numbers 按 **非递减顺序** 排列
+
+- -1000 <= target <= 1000
+
+- **仅存在一个有效答案**
+
+#### 题解
+
+初始时两个指针分别指向第一个元素位置和最后一个元素的位置。每次计算两个指针指向的两个元素之和，并和目标值比较。如果两个元素之和等于目标值，则发现了唯一解。如果两个元素之和小于目标值，则将左侧指针右移一位。如果两个元素之和大于目标值，则将右侧指针左移一位。移动指针之后，重复上述操作，直到找到答案。
+
+> 假设答案索引分别是i和j，那么i和j就是左右端点，否则左右指针一定有一个先到达答案索引，所以不会错过正确答案。
+>
+
+```C#
+public class Solution
+{
+    public int[] TwoSum(int[] numbers, int target)
+    {
+        var lowPointer = 0;
+        var highPointer = numbers.Length - 1;
+        while (lowPointer < highPointer)
+        {
+            var sum = numbers[lowPointer] + numbers[highPointer];
+            if (sum == target)
+            {
+                return new[] {lowPointer + 1, highPointer + 1};
+            }
+            else if (sum < target)
+            {
+                ++lowPointer;
+            }
+            else
+            {
+                --highPointer;
+            }
+        }
+        return new[] { -1, -1 };
+    }
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：O(n)，其中 n 是数组的长度。两个指针移动的总次数最多为 n 次。
+- 空间复杂度：O(1)。
+
+## 第 4 天 双指针
+
+### [344. 反转字符串](https://leetcode-cn.com/problems/reverse-string/)
+
+#### 题目
+
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。
+
+不要给另外的数组分配额外的空间，你必须原地修改输入数组、使用 O(1) 的额外空间解决这一问题。
+
+**示例 1：**
+
+```
+输入：s = ["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+```
+
+**示例 2：**
+
+```
+输入：s = ["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+```
+
+**提示：**
+
+- 1 <= s.length <= 10^5^
+
+- s[i] 都是 ASCII 码表中的可打印字符
+
+#### 题解
+
+双指针同时指向数组两端，交换指针处元素值后，两指针同时向中间移动一位即可
+
+```C#
+public class Solution
+{
+    public void ReverseString(char[] s)
+    {
+        var low = 0;
+        var high = s.Length - 1;
+        while (low < high)
+        {
+            (s[low], s[high]) = (s[high], s[low]);
+            low++;
+            high--;
+        }
+    }
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：O(N)，其中 N 为字符数组的长度。一共执行了 N/2 次的交换。
+
+- 空间复杂度：O(1)。只使用了常数空间来存放若干变量。
+
+### [557. 反转字符串中的单词 III](https://leetcode-cn.com/problems/reverse-words-in-a-string-iii/)
+
+#### 题目
+
+给定一个字符串 s ，你需要反转字符串中每个单词的字符顺序，同时仍保留空格和单词的初始顺序。
+
+**示例 1：**
+
+```
+输入：s = "Let's take LeetCode contest"
+输出："s'teL ekat edoCteeL tsetnoc"
+```
+
+**示例 2:**
+
+```
+输入： s = "God Ding"
+输出："doG gniD"
+```
+
+**提示：**
+
+- 1 <= s.length <= 5 * 10^4^
+
+- s 包含可打印的 ASCII 字符。
+
+- s 不包含任何开头或结尾空格。
+
+- s 里 至少 有一个词。
+
+- s 中的所有单词都用一个空格隔开。
+
+#### 题解
+
+下面两种方法思路是一样的，开辟一个新字符串。然后从头到尾遍历原字符串，直到找到空格为止，此时找到了一个单词，并能得到单词的起止位置。随后，根据单词的起止位置，可以将该单词逆序放到新字符串当中。如此循环多次，直到遍历完原字符串，就能得到翻转后的结果。
+
+```C#
+public class Solution
+{
+    public string ReverseWords(string s)
+    {
+        var low = 0;
+        var high = 0;
+        var sb = new StringBuilder(s);
+        sb.Append(' ');
+        for (int i = 0; i < sb.Length; i++)
+        {
+            if (sb[i] == ' ')
+            {
+                high = i - 1;
+                while (low < high)
+                {
+                    (sb[low], sb[high]) = (sb[high], sb[low]);
+                    low++;
+                    high--;
+                }
+                low = i + 1;
+            }
+        }
+        return sb.Remove(sb.Length - 1, 1).ToString();
+    }
+}
+```
+
+```C#
+public class Solution
+{
+    public string ReverseWords(string s)
+    {
+        var low = 0;
+        var high = 0;
+        var sb = new StringBuilder(s);
+        for (int i = 0; i < sb.Length; i++)
+        {
+            if (sb[i] == ' ')
+            {
+                high = i - 1;
+                DoublePointer(ref low, ref high, sb, i);
+            }
+            else if (i == sb.Length - 1)
+            {
+                high = i;
+                DoublePointer(ref low, ref high, sb, i);
+            }
+        }
+        return sb.ToString();
+    }
+
+    private void DoublePointer(ref int low, ref int high, StringBuilder sb, int i)
+    {
+        while (low < high)
+        {
+            (sb[low], sb[high]) = (sb[high], sb[low]);
+            low++;
+            high--;
+        }
+        low = i + 1;
+    }
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：O(N)，其中 N 为字符串的长度。原字符串中的每个字符都会在 O(1) 的时间内放入新字符串中。
+
+- 空间复杂度：O(N)。我们开辟了与原字符串等大的空间。
+
+## 第5天 双指针
+
+### [876. 链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
+
+#### 题目
+
+给定一个头结点为 head 的非空单链表，返回链表的中间结点。
+
+如果有两个中间结点，则返回第二个中间结点。
+
+**示例 1：**
+
+```
+输入：[1,2,3,4,5]
+输出：此列表中的结点 3 (序列化形式：[3,4,5])
+返回的结点值为 3 。 (测评系统对该结点序列化表述是 [3,4,5])。
+注意，我们返回了一个 ListNode 类型的对象 ans，这样：
+ans.val = 3, ans.next.val = 4, ans.next.next.val = 5, 以及 ans.next.next.next = NULL.
+```
+
+**示例 2：**
+
+```
+输入：[1,2,3,4,5,6]
+输出：此列表中的结点 4 (序列化形式：[4,5,6])
+由于该列表有两个中间结点，值分别为 3 和 4，我们返回第二个结点。
+```
+
+**提示：**
+
+- 给定链表的结点数介于 1 和 100 之间。
+
+#### 题解
+
+```C#
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     public int val;
+ *     public ListNode next;
+ *     public ListNode(int val=0, ListNode next=null) {
+ *         this.val = val;
+ *         this.next = next;
+ *     }
+ * }
+ */
+public class Solution
+{
+    public ListNode MiddleNode(ListNode head)
+    {
+        var low = head;
+        var high = head;
+        // 左节点每向右移动一位，右节点向右移动2位
+        // 以保证左节点位于左端点与右节点中间
+        while (high != null && high.next != null)
+        {
+            low = low.next;
+            high = high.next.next;
+        }
+        return low;
+    }
+}
+```
+
+#### 复杂度分析
+
+- 时间复杂度：O(N)，其中 N 是给定链表的结点数目。
+
+- 空间复杂度：O(1)，只需要常数空间存放两个指针。
+
+### [19. 删除链表的倒数第 N 个结点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
+
+#### 题目
+
+给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
+
+**示例 1：**
+
+```
+输入：head = [1,2,3,4,5], n = 2
+输出：[1,2,3,5]
+```
+
+**示例 2：**
+
+```
+输入：head = [1], n = 1
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [1,2], n = 1
+输出：[1]
+```
+
+**提示：**
+
+- 链表中结点的数目为 sz
+
+- 1 <= sz <= 30
+
+- 0 <= Node.val <= 100
+
+- 1 <= n <= sz
+
+**进阶：**你能尝试使用一趟扫描实现吗？
+
+#### 题解
+
+```C#
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     public int val;
+ *     public ListNode next;
+ *     public ListNode(int val=0, ListNode next=null) {
+ *         this.val = val;
+ *         this.next = next;
+ *     }
+ * }
+ */
+public class Solution
+{
+    public ListNode RemoveNthFromEnd(ListNode head, int n)
+    {
+        // 两个指针，高位指针比低位指针先走n步
+        var low = head;
+        var high = head;
+        var step = 0;
+        while (high.next != null)
+        {
+            if (step < n)
+            {
+                high = high.next;
+                step++;
+            }
+            else
+            {
+                high = high.next;
+                low = low.next;
+            }
+        }
+        // 链表长度为1时
+        if (low.next == null)
+        {
+            head = null;
+        }
+        // 链表长度等于步长时
+        else if (step < n)
+        {
+            head = head.next;
+        }
+        else
+        {
+            low.next = low.next.next;
+        }
+        return head;
+    }
+}
+```
+
+**复杂度分析**
+
+- 时间复杂度：O(L)，其中 L** 是链表的长度。
+- 空间复杂度：O(1)。
