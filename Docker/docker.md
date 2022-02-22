@@ -92,6 +92,8 @@ ENTRYPOINT ["dotnet", "Info.Api.dll"]
    docker ps
    # 查看所有容器
    docker ps -a
+   # 通过容器名模糊搜索容器
+   docker ps | grep 搜索字段
    ```
 
 5. 进入容器，星号替换为上一步看到的容器Id

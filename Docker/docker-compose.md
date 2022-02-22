@@ -12,7 +12,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2019-latest
     #总是重启后启动
     restart: "no"
-    #端口映射
+    #端口映射（映射端口:真正的service端口)
     ports:
       - 1433:1433
     #挂载
