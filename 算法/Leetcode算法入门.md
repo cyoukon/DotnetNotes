@@ -1007,3 +1007,121 @@ public class Solution
 时间复杂度：O(N)，其中 NN 是字符串的长度。左指针和右指针分别会遍历整个字符串一次。
 
 空间复杂度：O(∣Σ∣)，其中Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。在本题中没有明确说明字符集，因此可以默认为所有 ASCII 码在 [0, 128)[0,128) 内的字符，即∣Σ∣=128。我们需要用到哈希集合来存储出现过的字符，而字符最多有∣Σ∣ 个，因此空间复杂度为 O(∣Σ∣)。
+
+### [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+#### 题目
+
+给你两个字符串 s1 和 s2 ，写一个函数来判断 s2 是否包含 s1 的排列。如果是，返回 true ；否则，返回 false 。
+
+换句话说，s1 的排列之一是 s2 的 子串 。
+
+**示例 1：**
+
+```
+输入：s1 = "ab" s2 = "eidbaooo"
+输出：true
+解释：s2 包含 s1 的排列之一 ("ba").
+```
+
+**示例 2：**
+
+```
+输入：s1= "ab" s2 = "eidboaoo"
+输出：false
+```
+
+**提示：**
+
+- 1 <= s1.length, s2.length <= 10^4^
+
+- s1 和 s2 仅包含小写字母
+
+#### 题解
+
+```C#
+public class Solution
+{
+    public bool CheckInclusion(string sonStr, string parentStr)
+    {
+        var sonLenth = sonStr.Length;
+        var parentLenth = parentStr.Length;
+        // s1比s2长时，s1不可能是s2的子串
+        if (sonLenth > parentLenth)
+        {
+            return false;
+        }
+
+        // 由于排列不会改变字符串中每个字符的个数，
+        // 所以只有当两个字符串每个字符的个数均相等时，
+        // 一个字符串才是另一个字符串的排列。
+        // 题中字符串仅由小写字母构成，用长度为26的数组记录字符出现的次数
+        var sonCount = new int[26];
+        var parentCount = new int[26];
+        for (int i = 0; i < sonLenth; ++i)
+        {
+            ++sonCount[sonStr[i] - 'a'];
+            ++parentCount[parentStr[i] - 'a'];
+        }
+        if (sonCount.SequenceEqual(parentCount))
+        {
+            return true;
+        }
+        // 开始在父字符串上向右滑动
+        for (int i = sonLenth; i < parentLenth; ++i)
+        {
+            // 当前滑动窗口最左边字符出现次数减一
+            --parentCount[parentStr[i - sonLenth] - 'a'];
+            // 当前滑动窗口最右边字符出现次数加一
+            ++parentCount[parentStr[i] - 'a'];
+            if (sonCount.SequenceEqual(parentCount))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(n+m+∣Σ∣)，其中 n 是字符串s1  的长度，m 是字符串 s2 的长度，Σ 是字符集，这道题中的字符集是小写字母，∣Σ∣=26。
+
+空间复杂度：O(∣Σ∣)。
+
+## 第7天 广度优先搜索 / 深度优先搜索
+
+### [733. 图像渲染](https://leetcode-cn.com/problems/flood-fill/)
+
+#### 题目
+
+有一幅以二维整数数组表示的图画，每一个整数表示该图画的像素值大小，数值在 0 到 65535 之间。
+
+给你一个坐标 (sr, sc) 表示图像渲染开始的像素值（行 ，列）和一个新的颜色值 newColor，让你重新上色这幅图像。
+
+为了完成上色工作，从初始坐标开始，记录初始坐标的上下左右四个方向上像素值与初始坐标相同的相连像素点，接着再记录这四个方向上符合条件的像素点与他们对应四个方向上像素值与初始坐标相同的相连像素点，……，重复该过程。将所有有记录的像素点的颜色值改为新的颜色值。
+
+最后返回经过上色渲染后的图像。
+
+**示例 1:**
+
+```
+输入: 
+image = [[1,1,1],
+         [1,1,0],
+         [1,0,1]]
+sr = 1, sc = 1, newColor = 2
+输出: [[2,2,2],[2,2,0],[2,0,1]]
+解析: 
+在图像的正中间，(坐标(sr,sc)=(1,1)),
+在路径上所有符合条件的像素点的颜色都被更改成2。
+注意，右下角的像素没有更改为2，
+因为它不是在上下左右四个方向上与初始点相连的像素点。
+```
+
+**注意:**
+
+- image 和 image[0] 的长度在范围 [1, 50] 内。
+- 给出的初始点将满足 0 <= sr < image.length 和 0 <= sc < image[0].length。
+- `image[i][j]` 和 newColor 表示的颜色值在范围 [0, 65535]内。
