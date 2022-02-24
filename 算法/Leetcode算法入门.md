@@ -1115,9 +1115,9 @@ sr = 1, sc = 1, newColor = 2
 输出: [[2,2,2],[2,2,0],[2,0,1]]
 解析: 
 在图像的正中间，(坐标(sr,sc)=(1,1)),
-在路径上所有符合条件的像素点的颜色都被更改成2。
+在上下左右连通路径上所有与指定坐标颜色相同的像素点的颜色都被更改成2。
 注意，右下角的像素没有更改为2，
-因为它不是在上下左右四个方向上与初始点相连的像素点。
+因为它被0隔开了，不是在上下左右四个方向上与初始点相连的像素点。
 ```
 
 **注意:**
@@ -1125,3 +1125,275 @@ sr = 1, sc = 1, newColor = 2
 - image 和 image[0] 的长度在范围 [1, 50] 内。
 - 给出的初始点将满足 0 <= sr < image.length 和 0 <= sc < image[0].length。
 - `image[i][j]` 和 newColor 表示的颜色值在范围 [0, 65535]内。
+
+#### 题解
+
+- 广度优先搜索
+
+> - 我们设置一个队列，先把初始点添加进去
+> - 规定每次从队列取出一个坐标
+> - 对这个坐标染色，并且把这个坐标的邻居（符合要求且不重复的好邻居），放到队列中。
+> - 当这个队列为空的时候，说明染色完成
+
+```C#
+public class Solution
+{
+    public int[][] FloodFill(int[][] image, int sr, int sc, int newColor)
+    {
+        return Bfs(image, sr, sc, newColor);
+    }
+
+    /// <summary>
+    /// 广度优先搜索
+    /// </summary>
+    private int[][] Bfs(int[][] image, int srcRow, int srcColumn, int newColor)
+    {
+        // 记录初始颜色
+        var originColor = image[srcRow][srcColumn];
+        // 其实颜色和目标颜色相同，直接返回原图
+        if (originColor == newColor)
+        {
+            return image;
+        }
+        // 左上右下四个方向单次偏移量
+        var directions = new int[][] { new[] { -1, 0 }, new[] { 0, 1 }, new[] { 1, 0 }, new[] { 0, -1 } };
+        // 使用队列记录遍历位置，先进先出
+        var queue = new Queue<(int row, int column)>();
+        // 放入起始位置
+        queue.Enqueue((srcRow, srcColumn));
+        while (queue.Count > 0)
+        {
+            var currPoint = queue.Dequeue();
+            image[currPoint.row][currPoint.column] = newColor;
+            // 遍历四个方向，查找是否有颜色相同的点
+            foreach (var direction in directions)
+            {
+                var newRow = currPoint.row + direction[0];
+                var newColumn = currPoint.column + direction[1];
+
+                if (newRow >= 0 && newRow < image.Length             // 行索引在数组范围内
+                    && newColumn >= 0 && newColumn < image[0].Length // 列索引在数组范围内
+                    && image[newRow][newColumn] == originColor)      // 当前点颜色与初始点颜色相同
+                {
+                    queue.Enqueue((newRow, newColumn));
+                }
+            }
+        }
+        return image;
+    }
+}
+```
+
+- 深度优先搜索
+
+> - 我们设置一个栈，先把初始点添加进去
+>
+> - 规定每次从栈中取出一个坐标
+>
+> - 对这个坐标染色，并且把这个坐标的一个方向上的邻居（符合要求且不重复的好邻居），放到栈中。
+>
+> - 当这个方向没有复合要求的邻居的时候，进入下一个方向
+>
+> - 当这个栈为空的时候，说明染色完成
+
+深度优先搜索有以下两种实现方式
+
+1. 递归
+2. 使用栈 Stack
+
+```C#
+public class Solution
+{
+    public int[][] FloodFill(int[][] image, int sr, int sc, int newColor)
+    {
+        return Dfs(image, sr, sc, newColor);
+    }
+
+    /// <summary>
+    /// 深度优先搜索
+    /// </summary>
+    private int[][] Dfs(int[][] image, int srcRow, int srcColumn, int newColor)
+    {
+        // 记录初始颜色
+        var originColor = image[srcRow][srcColumn];
+        // 其实颜色和目标颜色相同，直接返回原图
+        if (originColor == newColor)
+        {
+            return image;
+        }
+        // 左上右下四个方向单次偏移量
+        var directions = new int[][] { new[] { -1, 0 }, new[] { 0, 1 }, new[] { 1, 0 }, new[] { 0, -1 } };
+        // 使用栈记录遍历位置，先进后出
+        var stack = new Stack<(int row, int column)>();
+        // 放入起始位置
+        stack.Push((srcRow, srcColumn));
+        while (stack.Count > 0)
+        {
+            var currPoint = stack.Pop();
+            image[currPoint.row][currPoint.column] = newColor;
+            // 遍历四个方向，查找是否有颜色相同的点
+            foreach (var direction in directions)
+            {
+                var newRow = currPoint.row + direction[0];
+                var newColumn = currPoint.column + direction[1];
+
+                if (newRow >= 0 && newRow < image.Length             // 行索引在数组范围内
+                    && newColumn >= 0 && newColumn < image[0].Length // 列索引在数组范围内
+                    && image[newRow][newColumn] == originColor)      // 当前点颜色与初始点颜色相同
+                {
+                    stack.Push((newRow, newColumn));
+                }
+            }
+        }
+        return image;
+    }
+}
+```
+
+#### 复杂度分析
+
+两种方法复杂度一样
+
+时间复杂度：O(n×m)，其中 n 和 m 分别是二维数组的行数和列数。最坏情况下需要遍历所有的方格一次。
+
+空间复杂度：O(n×m)，其中 n 和 m 分别是二维数组的行数和列数。主要为队列或栈空间的开销。
+
+### [695. 岛屿的最大面积](https://leetcode-cn.com/problems/max-area-of-island/)
+
+#### 题目
+
+给你一个大小为 m x n 的二进制矩阵 grid 。
+
+岛屿 是由一些相邻的 1 (代表土地) 构成的组合，这里的「相邻」要求两个 1 必须在 水平或者竖直的四个方向上 相邻。你可以假设 grid 的四个边缘都被 0（代表水）包围着。
+
+岛屿的面积是岛上值为 1 的单元格的数目。
+
+计算并返回 grid 中最大的岛屿面积。如果没有岛屿，则返回面积为 0 。
+
+**示例 1：**
+
+![img](Leetcode算法入门.assets/maxarea1-grid.jpg)
+
+```
+输入：grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
+输出：6
+解释：答案不应该是 11 ，因为岛屿只能包含水平或垂直这四个方向上的 1 。
+```
+
+**示例 2：**
+
+```
+输入：grid = [[0,0,0,0,0,0,0,0]]
+输出：0
+```
+
+**提示：**
+
+- m == grid.length
+
+- n == grid[i].length
+
+- 1 <= m, n <= 50
+
+- `grid[i][j]` 为 0 或 1
+
+#### 题解
+
+深度优先搜索解法
+
+```C#
+public class Solution
+{
+    public int MaxAreaOfIsland(int[][] grid)
+    {
+        var maxArea = 0;
+        // 遍历每一个坐标
+        for (int i = 0; i < grid.Length; i++)
+        {
+            for (int j = 0; j < grid[0].Length; j++)
+            {
+                maxArea = Math.Max(maxArea, GetArea(grid, i, j));
+            }
+        }
+        return maxArea;
+    }
+
+    private int GetArea(int[][] grid, int row, int column)
+    {
+        var area = 0;
+        // 当前坐标在数组范围内，并且值为1
+        if (row >= 0 && row < grid.Length
+            && column >= 0 && column < grid[0].Length
+            && grid[row][column] == 1)
+        {
+            // 将搜索过的岛屿置0，防止重复搜索
+            grid[row][column] = 0;
+            area = 1;
+            // 四个方向
+            area += GetArea(grid, row - 1, column);
+            area += GetArea(grid, row, column + 1);
+            area += GetArea(grid, row + 1, column);
+            area += GetArea(grid, row, column - 1);
+        }
+        return area;
+    }
+}
+```
+
+广度优先搜索解法
+
+```C#
+public class Solution
+{
+    public int MaxAreaOfIsland(int[][] grid)
+    {
+        var maxArea = 0;
+        // 左上右下四个方向单次偏移量
+        var directions = new (int row, int column)[] { (-1, 0), (0, 1), (1, 0), (0, -1) };
+        // 遍历每一个坐标
+        for (int i = 0; i < grid.Length; i++)
+        {
+            for (int j = 0; j < grid[0].Length; j++)
+            {
+                var currArea = 0;
+                var queue = new Queue<(int row, int column)>();
+                // 当前遍历到的坐标 作为起始坐标入队
+                queue.Enqueue((i, j));
+                while (queue.Count > 0)
+                {
+                    var point = queue.Dequeue();
+                    // 如果从队列中取出的坐标值为1，则将其置0（防止重复遍历），且面积加1，然后将周围坐标入队
+                    // 否则重新从队列中取值
+                    if (grid[point.row][point.column] == 1)
+                    {
+                        grid[point.row][point.column] = 0;
+                        currArea++;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    foreach (var direction in directions)
+                    {
+                        var row = point.row + direction.row;
+                        var column = point.column + direction.column;
+                        if (row >= 0 && row < grid.Length
+                            && column >= 0 && column < grid[0].Length)
+                        {
+                            queue.Enqueue((row, column));
+                        }
+                    }
+                }
+                maxArea = Math.Max(maxArea, currArea);
+            }
+        }
+        return maxArea;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(R×C)。其中 R 是给定网格中的行数，C 是列数。我们访问每个网格最多一次。
+
+空间复杂度：O(R×C)，队列中最多会存放所有的土地，土地的数量最多为 R×C 块，因此使用的空间为 O(R×C)。
