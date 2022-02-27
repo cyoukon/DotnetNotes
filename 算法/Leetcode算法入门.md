@@ -1397,3 +1397,164 @@ public class Solution
 时间复杂度：O(R×C)。其中 R 是给定网格中的行数，C 是列数。我们访问每个网格最多一次。
 
 空间复杂度：O(R×C)，队列中最多会存放所有的土地，土地的数量最多为 R×C 块，因此使用的空间为 O(R×C)。
+
+## 第8天 广度优先搜索 / 深度优先搜索
+
+### [617. 合并二叉树](https://leetcode-cn.com/problems/merge-two-binary-trees/)
+
+#### 题目
+
+给你两棵二叉树： root1 和 root2 。
+
+想象一下，当你将其中一棵覆盖到另一棵之上时，两棵树上的一些节点将会重叠（而另一些不会）。你需要将这两棵树合并成一棵新二叉树。合并的规则是：如果两个节点重叠，那么将这两个节点的值相加作为合并后节点的新值；否则，不为 null 的节点将直接作为新二叉树的节点。
+
+返回合并后的二叉树。
+
+注意: 合并过程必须从两个树的根节点开始。
+
+**示例 1：**
+
+![img](Leetcode算法入门.assets/merge.jpg)
+
+```
+输入：root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]
+输出：[3,4,5,5,4,null,7]
+```
+
+**示例 2：**
+
+```
+输入：root1 = [1], root2 = [1,2]
+输出：[2,2]
+```
+
+**提示：**
+
+- 两棵树中的节点数目在范围 [0, 2000] 内
+
+- -10^4^ <= Node.val <= 10^4^
+
+#### 题解
+
+```C#
+public class Solution
+{
+    /// <summary>
+    /// DFS递归版本
+    /// </summary>
+    public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
+    {
+        if (root1 == null)
+        {
+            return root2;
+        }
+        if (root2 == null)
+        {
+            return root1;
+        }
+        var ansTree = new TreeNode(root1.val + root2.val);
+        ansTree.left = MergeTrees(root1.left, root2.left);
+        ansTree.right = MergeTrees(root1.right, root2.right);
+        return ansTree;
+    }
+
+    /// <summary>
+    /// DFS栈版本
+    /// </summary>
+    public TreeNode MergeTrees1(TreeNode root1, TreeNode root2)
+    {
+        if (root1 == null)
+        {
+            return root2;
+        }
+        if (root2 == null)
+        {
+            return root1;
+        }
+        var stack = new Stack<(TreeNode left, TreeNode right)>();
+        stack.Push((root1, root2));
+        while (stack.Count > 0)
+        {
+            var (tree1, tree2) = stack.Pop();
+            // 将值加到root1上去
+            tree1.val += tree2.val;
+            // 处理两子树的左边节点
+            if (tree1.left is not null && tree2.left is not null)
+            {
+                // 两左节点都不为空时，入栈
+                stack.Push((tree1.left, tree2.left));
+            }
+            else if (tree1.left is null)
+            {
+                // tree1左节点为空时，合并后的结果就是tree2左节点
+                // tree1右节点为空或者两节点都为空时，合并后的结果就是tree1左节点
+                tree1.left = tree2.left;
+            }
+            // 处理两子树的右边节点，同上
+            if (tree1.right is not null && tree2.right is not null)
+            {
+                stack.Push((tree1.right, tree2.right));
+            }
+            else if (tree1.right is null)
+            {
+                tree1.right = tree2.right;
+            }
+        }
+        return root1;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(min(m,n))，其中 m 和 n 分别是两个二叉树的节点个数。对两个二叉树同时进行搜索，只有当两个二叉树中的对应节点都不为空时才会访问到该节点，因此被访问到的节点数不会超过较小的二叉树的节点数。
+
+空间复杂度：O(min(m,n))，其中 m 和 n 分别是两个二叉树的节点个数。空间复杂度取决于堆栈中的元素个数，堆栈中的元素个数不会超过较小的二叉树的节点数。
+
+### [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+#### 题目
+
+给定一个 完美二叉树 ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL。
+
+初始状态下，所有 next 指针都被设置为 NULL。
+
+**示例 1：**
+
+![img](Leetcode算法入门.assets/116_sample.png)
+
+```
+输入：root = [1,2,3,4,5,6,7]
+输出：[1,#,2,3,#,4,5,6,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
+```
+
+**示例 2:**
+
+```
+输入：root = []
+输出：[]
+```
+
+**提示：**
+
+- 树中节点的数量在 [0, 2^12^ - 1] 范围内
+
+- -1000 <= node.val <= 1000
+
+**进阶：**
+
+- 你只能使用常量级额外空间。
+
+- 使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。
