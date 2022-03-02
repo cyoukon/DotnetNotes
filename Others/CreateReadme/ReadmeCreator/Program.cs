@@ -8,8 +8,6 @@ namespace ConsoleApp1
 {
     public class FileTreeHelper
     {
-        const string titleMarks = "#################";
-
         static void Main()
         {
             var rootReadme = "./README.md";
@@ -47,7 +45,8 @@ namespace ConsoleApp1
                 for (int i = 0; i < directories.Length; i++)
                 {
                     string dire = directories[i];
-                    var titleData = $"{titleMarks[..(i + 1)]} {dire.Replace(" ", "%20")}";
+                    // "".PadRight(i + 1, '#');
+                    var titleData = $"{new string('#', i + 1)} {dire.Replace(" ", "%20")}";
                     if (!mdDatas.Contains(titleData))
                     {
                         mdDatas.Add(titleData);

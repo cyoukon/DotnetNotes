@@ -56,6 +56,7 @@
 [Composite.md](./设计模式/组合模式/Composite.md)
 # 算法
 [算法随记.md](./算法/算法随记.md)
+[Leetcode算法入门.md](./算法/Leetcode算法入门.md)
 # ASP.NET
 ## 中间件与过滤器
 [MiddlewareAndFilters.md](./ASP.NET/中间件与过滤器/MiddlewareAndFilters.md)
@@ -93,3 +94,4 @@
 [SQL standard.md](./SQL/SQL%20standard.md)
 ## MySql
 [MySqlNote.md](./SQL/MySql/MySqlNote.md)
+[sql备忘.md](./SQL/MySql/sql备忘.md)
