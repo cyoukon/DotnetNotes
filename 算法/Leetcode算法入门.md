@@ -1558,3 +1558,364 @@ struct Node {
 - 你只能使用常量级额外空间。
 
 - 使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。
+
+#### 题解
+
+```C#
+/*
+// Definition for a Node.
+public class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node next;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, Node _left, Node _right, Node _next) {
+        val = _val;
+        left = _left;
+        right = _right;
+        next = _next;
+    }
+}
+*/
+
+public class Solution
+{
+    public Node Connect(Node root)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+        var queue = new Queue<Node>();
+        queue.Enqueue(root);
+        while (queue.Count > 0)
+        {
+            // 记录队列大小，即当前层节点数
+            var size = queue.Count;
+            Node nextNode = queue.Dequeue();
+            for (int i = 0; i < size - 1; i++)
+            {
+                var currNode = nextNode;
+                // 按题要求串联当前层节点
+                nextNode = queue.Dequeue();
+                currNode.next = nextNode;
+
+                // 把这一层的子树按顺序入队
+                if (currNode.left != null)
+                {
+                    queue.Enqueue(currNode.left);
+                }
+                if (currNode.right != null)
+                {
+                    queue.Enqueue(currNode.right);
+                }
+            }
+            // 层的最后一个节点连接Null
+            nextNode.next = null;
+            if (nextNode.left != null)
+            {
+                queue.Enqueue(nextNode.left);
+            }
+            if (nextNode.right != null)
+            {
+                queue.Enqueue(nextNode.right);
+            }
+        }
+        return root;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(N)。每个节点会被访问一次且只会被访问一次，即从队列中弹出，并建立 next 指针。
+
+空间复杂度：O(N)。这是一棵完美二叉树，它的最后一个层级包含 N/2 个节点。广度优先遍历的复杂度取决于一个层级上的最大元素数量。这种情况下空间复杂度为 O(N)。
+
+## 第9天  待补充。。。。
+
+## 第12天动态规划
+
+### [70. 爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)
+
+#### 题目
+
+假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
+
+**示例 1：**
+
+```
+输入：n = 2
+输出：2
+解释：有两种方法可以爬到楼顶。
+1. 1 阶 + 1 阶
+2. 2 阶
+```
+**示例 2：**
+
+```
+输入：n = 3
+输出：3
+解释：有三种方法可以爬到楼顶。
+1. 1 阶 + 1 阶 + 1 阶
+2. 1 阶 + 2 阶
+3. 2 阶 + 1 阶
+```
+
+提示：
+
+- 1 <= n <= 45
+
+#### 题解
+
+```C#
+public class Solution
+{
+    // 最后一步可能跨了一阶或者两阶，所以动态规划方程如下
+    // f(x) = f(x - 1) + f(x - 2)
+    public int ClimbStairs(int n)
+    {
+        if (n < 1) return 0;
+        else if (n == 1) return 1;
+        else if (n == 2) return 2;
+
+        var prev = 1;
+        var curr = 2;
+        var result = 2;
+        for (int i = 3; i <= n; i++)
+        {
+            result = curr + prev;
+            prev = curr;
+            curr = result;
+        }
+        return result;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：循环执行 n 次，每次花费常数的时间代价，故渐进时间复杂度为 O(n)。
+空间复杂度：这里只用了常数个变量作为辅助空间，故渐进空间复杂度为 O(1)。
+
+### [198. 打家劫舍](https://leetcode-cn.com/problems/house-robber/)
+
+#### 题目
+
+你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 不触动警报装置的情况下 ，一夜之内能够偷窃到的最高金额。
+
+**示例 1：**
+
+```
+输入：[1,2,3,1]
+输出：4
+解释：偷窃 1 号房屋 (金额 = 1) ，然后偷窃 3 号房屋 (金额 = 3)。
+     偷窃到的最高金额 = 1 + 3 = 4 。
+```
+
+**示例 2：**
+
+```
+输入：[2,7,9,3,1]
+输出：12
+解释：偷窃 1 号房屋 (金额 = 2), 偷窃 3 号房屋 (金额 = 9)，接着偷窃 5 号房屋 (金额 = 1)。
+     偷窃到的最高金额 = 2 + 9 + 1 = 12 。
+```
+
+**提示：**
+
+- 1 <= nums.length <= 100
+
+- 0 <= nums[i] <= 400
+
+#### 题解
+
+```C#
+public class Solution
+{
+    // 不能同时偷相邻两个房子，所以偷 x 个房子有两种偷法。
+    // 1. 偷前 x - 1 个，最后一个不偷
+    // 2. 偷前 x - 2 个，以及最后一个
+    // f(x) = Max{ f(x-1), f(x - 2) + Hx }
+    public int Rob(int[] nums)
+    {
+        if (nums == null || nums.Length == 0) return 0;
+        else if (nums.Length == 1) return nums[0];
+
+        // 这里展示的是动态规划的一般性解法，实际上不需要用dp数组去存储所有项，
+        // 只需要保存两项即可
+        var dp = new int[nums.Length];
+        dp[0] = nums[0];
+        dp[1] = Math.Max(nums[0], nums[1]);
+        for (int i = 2; i < nums.Length; i++)
+        {
+            dp[i] = Math.Max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        return dp.Last();
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(n)
+
+空间复杂度：O(n)，可以优化到O(1)
+
+### [120. 三角形最小路径和](https://leetcode-cn.com/problems/triangle/)
+
+#### 题目
+
+给定一个三角形 triangle ，找出自顶向下的最小路径和。
+
+每一步只能移动到下一行中相邻的结点上。相邻的结点 在这里指的是 下标 与 上一层结点下标 相同或者等于 上一层结点下标 + 1 的两个结点。也就是说，如果正位于当前行的下标 i ，那么下一步可以移动到下一行的下标 i 或 i + 1 。
+
+**示例 1：**
+
+```
+输入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+输出：11
+解释：如下面简图所示：
+   2
+  3 4
+ 6 5 7
+4 1 8 3
+自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+```
+
+**示例 2：**
+
+```
+输入：triangle = [[-10]]
+输出：-10
+```
+
+**提示：**
+
+- 1 <= triangle.length <= 200
+
+- triangle[0].length == 1
+
+- triangle[i].length == triangle[i - 1].length + 1
+
+- -10^4^ <= `triangle[i][j]` <= 10^4^
+
+**进阶：**
+
+你可以只使用 O(n) 的额外空间（n 为三角形的总行数）来解决这个问题吗？
+
+#### 题解
+
+```C#
+public class Solution
+{
+    // f(0) = triangle[0][0]
+    // f(1) = triangle[0][0] + Min { triangle[1][0], triangle[1][1] }
+    // 要到达位置 (i,j)，上一步需要在位置 (i - 1, j - 1) 或者 (i - 1, j) 上
+    // 状态转移方程 f[i][j]=min(f[i−1][j−1],f[i−1][j])+c[i][j]
+    public int MinimumTotal(IList<IList<int>> triangle)
+    {
+        // 三角形行数与最长行的长度相等
+        var length = triangle.Count;
+        if (length == 1) return triangle[0][0];
+        if (length == 2) return triangle[0][0] + Math.Min(triangle[1][0], triangle[1][1]);
+
+        var dp = new int[length, length];
+        dp[0, 0] = triangle[0][0];
+        dp[1, 0] = triangle[0][0] + triangle[1][0];
+        dp[1, 1] = triangle[0][0] + triangle[1][1];
+        // 从第2行，第0列开始遍历
+        for (int i = 2; i < length; i++)
+        {
+            // 第0列为边界条件，单独计算
+            dp[i, 0] = dp[i - 1, 0] + triangle[i][0];
+            // 注意列号不能超过当前行长度
+            for (int j = 1; j < i; j++)
+            {
+                dp[i, j] = Math.Min(dp[i - 1, j - 1], dp[i -1, j]) + triangle[i][j];
+            }
+            // 第i列为边界条件，单独计算
+            dp[i, i] = dp[i - 1, i - 1] + triangle[i][i];
+        }
+
+        //for (int i = 0; i < dp.GetLength(1); i++)
+        //{
+        //    for (int j = 0; j < i; j++)
+        //    {
+        //        Console.Write(dp[i, j]);
+        //        Console.Write('，');
+        //    }
+        //    Console.WriteLine(dp[i, i]);
+        //}
+
+        var minVal = int.MaxValue;
+        for (int i = 0; i < length; i++)
+        {
+            if (minVal > dp[length - 1, i])
+            {
+                minVal = dp[length - 1, i];
+            }
+        }
+        return minVal;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(n^2^)，其中 nn 是三角形的行数。
+
+空间复杂度：O(n^2^)。我们需要一个 n∗n 的二维数组存放所有的状态。
+
+## 第13天 位运算
+
+### [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/)
+
+#### 题目
+
+给你一个整数 n，请你判断该整数是否是 2 的幂次方。如果是，返回 true ；否则，返回 false 。
+
+如果存在一个整数 x 使得 n == 2^x^ ，则认为 n 是 2 的幂次方。
+
+**提示：**
+
+- -2^31^ <= n <= 2^31^ - 1
+
+**进阶：**你能够不使用循环/递归解决此问题吗？
+
+#### 题解
+
+```C#
+public class Solution
+{
+    public bool IsPowerOfTwo(int n)
+    {
+        // 100000
+        // 011111
+        return n > 0 && (n & (n - 1)) == 0;
+    }
+}
+```
+
+#### 复杂度分析
+
+时间复杂度：O(1)。
+
+空间复杂度：O(1)。
+
+### [191. 位1的个数](https://leetcode-cn.com/problems/number-of-1-bits/)
+
+#### 题目
+
+编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为[汉明重量](https://baike.baidu.com/item/汉明重量)）。
