@@ -28,7 +28,7 @@ namespace RH
                         factory = new ConnectionFactory
                         {
                             // ip
-                            HostName = "127.0.0.1",
+                            HostName = "192.168.16.200",
                             // 端口
                             Port = 5672,
                             // 账号

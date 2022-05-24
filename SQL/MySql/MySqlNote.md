@@ -704,7 +704,7 @@ SELECT * FROM t_employees LIMIT 20,10;
 ### 7.11.1 SQL语句编写顺序
 
 ```
-COPYSELECT 列名 FROM 表名 WHERE 条件 GROUP BY 分组 HAVING 过滤条件 ORDER BY 排序列(ASC|DESC) LIMIT 起始行,查询行数
+SELECT 列名 FROM 表名 WHERE 条件 GROUP BY 分组 HAVING 过滤条件 ORDER BY 排序列(ASC|DESC) LIMIT 起始行,查询行数
 ```
 
 ### 7.11.2 SQL语句执行顺序
